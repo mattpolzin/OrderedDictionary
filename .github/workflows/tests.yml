@@ -1,4 +1,4 @@
-name: Swift
+name: Tests
 
 on: [push]
 
@@ -22,5 +22,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - run: swift test --enable-test-discovery --enable-code-coverage
-    - uses: actions/swift-codecov@0.2.0
+    - run: swift test --enable-test-discovery
