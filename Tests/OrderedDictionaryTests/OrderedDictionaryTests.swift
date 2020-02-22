@@ -11,6 +11,44 @@ import Yams
 import FineJSON
 
 final class OrderedDictionaryTests: XCTestCase {
+    func test_initGrouping() {
+        let numbers = ["10", "10.0", "11"]
+
+        let dict = OrderedDictionary(
+            grouping: numbers,
+            by: { Double($0) }
+        )
+
+        XCTAssertEqual(
+            dict,
+            [
+                10: ["10", "10.0"],
+                11: ["11"]
+            ]
+        )
+    }
+
+    func test_initKeysAndValues() {
+         let keysAndValues = [
+            (10, "10.0"),
+            (11, "11"),
+            (10, "10")
+        ]
+
+        let dict = OrderedDictionary(
+            keysAndValues,
+            uniquingKeysWith: { $1 }
+        )
+
+        XCTAssertEqual(
+            dict,
+            [
+                10: "10",
+                11: "11"
+            ]
+        )
+    }
+
     func test_keySubscriptGet() {
         let dict: OrderedDictionary = [
             "hello": "world",
@@ -65,6 +103,31 @@ final class OrderedDictionaryTests: XCTestCase {
         XCTAssert(dict[1] == ("hi", "there"))
         XCTAssert(dict[2] == ("a", "test"))
         XCTAssert(dict[3] == ("the", "best"))
+    }
+
+    func test_defaultingSubscriptGet() {
+        let dict: OrderedDictionary = ["hello": "world"]
+
+        let hello = dict["hello", default: "there"]
+        let hi = dict["hi", default: "there"]
+
+        XCTAssertEqual(hello, "world")
+        XCTAssertEqual(hi, "there")
+    }
+
+    func test_defaultingSubscriptModify() {
+        var dict: OrderedDictionary = ["hello": "world"]
+
+        dict["hello", default: "there"] += " user."
+        dict["hi", default: "there"] += " user."
+
+        XCTAssertEqual(
+            dict,
+            [
+                "hello": "world user.",
+                "hi": "there user."
+            ]
+        )
     }
 
     func test_mapValues() {
