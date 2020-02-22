@@ -28,7 +28,30 @@ public struct OrderedDictionary<Key, Value> where Key: Hashable {
         unorderedHash = [:]
     }
 
-    /// Get the value for the given key.
+    public init<S>(grouping values: S, by keyForValue: (S.Element) throws -> Key) rethrows where Value == [S.Element], S : Sequence {
+        var dict = Self()
+
+        for value in values {
+            try dict[keyForValue(value), default: [S.Element]()].append(value)
+        }
+        self = dict
+    }
+
+    public init<S>(_ keysAndValues: S, uniquingKeysWith combine: (Value, Value) throws -> Value) rethrows where S : Sequence, S.Element == (Key, Value) {
+        var dict = Self()
+
+        for (key, value) in keysAndValues {
+            if let existing = dict[key] {
+                try dict[key] = combine(existing, value)
+            } else {
+                dict[key] = value
+            }
+        }
+
+        self = dict
+    }
+
+    /// Get/Set the value for the given key.
     public subscript(key: Key) -> Value? {
         get {
             return unorderedHash[key]
@@ -43,6 +66,17 @@ public struct OrderedDictionary<Key, Value> where Key: Hashable {
             }
             unorderedHash.removeValue(forKey: key)
             orderedKeys = orderedKeys.filter {$0 != key}
+        }
+    }
+
+    /// Get/Set the value for the given key or use the given default.
+    public subscript(key: Key, default defaultValue: @autoclosure () -> Value) -> Value {
+        get {
+            return self[key] ?? defaultValue()
+        }
+        set {
+            // use normal subscript setter
+            self[key] = newValue
         }
     }
 
