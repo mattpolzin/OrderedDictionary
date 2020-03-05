@@ -416,8 +416,7 @@ extension OrderedDictionary: LosslessStringKeyDecodable where Key: LosslessStrin
 
         for key in container.allKeys {
             guard let dictKey = Key(key.stringValue) else {
-                // throw?
-                continue
+                throw DecodingError.typeMismatch(Key.self, DecodingError.Context(codingPath: container.codingPath + [key], debugDescription: "OrderedDictionary key could not be decoded as required type."))
             }
             dict[dictKey] = try container.decode(Value.self, forKey: key)
         }
@@ -443,8 +442,7 @@ extension OrderedDictionary: StringRawKeyDecodable where Key: RawRepresentable, 
 
         for key in container.allKeys {
             guard let dictKey = Key(rawValue: key.stringValue) else {
-                // throw?
-                continue
+                throw DecodingError.typeMismatch(Key.self, DecodingError.Context(codingPath: container.codingPath + [key], debugDescription: "OrderedDictionary key could not be decoded as required type."))
             }
             dict[dictKey] = try container.decode(Value.self, forKey: key)
         }
